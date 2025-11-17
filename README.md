@@ -53,18 +53,18 @@ You can also use the role in its most simple form:
 
 ### Basic Configuration
 
-| Variable                   | Required | Default     | Description                                                                                  |
-| -------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------- |
-| `docker_api_host`          | No       | `127.0.0.1` | Host address to expose Docker API on (when `docker_expose_api` is true)                      |
-| `docker_api_port`          | No       | `2375`      | Port to expose Docker API on (when `docker_expose_api` is true)                              |
-| `docker_arch`              | No       | `amd64`     | Architecture to install Docker for (e.g., "amd64", "arm64")                                  |
-| `docker_data_dir`          | No       | ``          | Directory to store Docker volumes data                                                       |
-| `docker_expose_api`        | No       | `false`     | Whether to expose Docker API over TCP                                                        |
-| `docker_networks`          | No       | `[]`        | List of networks to create (dicts with name, driver, subnet, etc.)                           |
-| `docker_registry_email`    | No       | ``          | Registry email (mutually exclusive with `docker_registry_username`)                          |
-| `docker_registry_url`      | No       | ``          | Docker registry URL (registry authentication is skipped if not set)                          |
-| `docker_registry_username` | No       | ``          | Registry username (mutually exclusive with `docker_registry_email`)                          |
-| `docker_users`             | No       | `[]`        | List of users to be added to the `docker` group                                              |
+| Variable                   | Required | Default     | Description                                                             |
+| -------------------------- | -------- | ----------- | ----------------------------------------------------------------------- |
+| `docker_api_host`          | No       | `127.0.0.1` | Host address to expose Docker API on (when `docker_expose_api` is true) |
+| `docker_api_port`          | No       | `2375`      | Port to expose Docker API on (when `docker_expose_api` is true)         |
+| `docker_arch`              | No       | `amd64`     | Architecture to install Docker for (e.g., "amd64", "arm64")             |
+| `docker_data_dir`          | No       | ``          | Directory to store Docker volumes data                                  |
+| `docker_expose_api`        | No       | `false`     | Whether to expose Docker API over TCP                                   |
+| `docker_networks`          | No       | `[]`        | List of networks to create (dicts with name, driver, subnet, etc.)      |
+| `docker_registry_email`    | No       | ``          | Registry email (mutually exclusive with `docker_registry_username`)     |
+| `docker_registry_url`      | No       | ``          | Docker registry URL (registry authentication is skipped if not set)     |
+| `docker_registry_username` | No       | ``          | Registry username (mutually exclusive with `docker_registry_email`)     |
+| `docker_users`             | No       | `[]`        | List of users to be added to the `docker` group                         |
 
 **Note**: When using registry authentication, the registry password must be provided via the `DOCKER_REGISTRY_PASSWORD` environment variable.
 
