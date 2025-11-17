@@ -1,0 +1,36 @@
+---
+- name: Validate registry credentials
+  ansible.builtin.assert:
+    that:
+      - docker_registry_username is defined or docker_registry_email is defined
+    fail_msg: "When docker_registry_url is set, either docker_registry_username or docker_registry_email must be provided"
+  when: docker_registry_url is defined
+
+- name: Login to Docker registry as users
+  ansible.builtin.command:
+    cmd: >
+      docker login
+      --password-stdin
+      {% if docker_registry_username is defined %}-u {{ docker_registry_username }}{% elif docker_registry_email is defined %}-u {{ docker_registry_email }}{% endif %}
+      {{ docker_registry_url }}
+    stdin: "{{ lookup('env', 'DOCKER_REGISTRY_PASSWORD') | default('', true) }}"
+  become_user: "{{ item }}"
+  loop: "{{ docker_users }}"
+  when:
+    - docker_registry_url is defined
+    - docker_users is defined
+    - docker_users | length > 0
+  no_log: true
+
+- name: Login to Docker registry as root
+  ansible.builtin.command:
+    cmd: >
+      docker login
+      --password-stdin
+      {% if docker_registry_username is defined %}-u {{ docker_registry_username }}{% elif docker_registry_email is defined %}-u {{ docker_registry_email }}{% endif %}
+      {{ docker_registry_url }}
+    stdin: "{{ lookup('env', 'DOCKER_REGISTRY_PASSWORD') | default('', true) }}"
+  when:
+    - docker_registry_url is defined
+    - docker_users is not defined or docker_users | length == 0
+  no_log: true

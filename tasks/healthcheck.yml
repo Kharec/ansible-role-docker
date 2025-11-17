@@ -1,0 +1,12 @@
+---
+- name: Wait for Docker daemon to be ready
+  ansible.builtin.wait_for:
+    path: /var/run/docker.sock
+    state: present
+    timeout: 30
+
+- name: Verify Docker is running and healthy
+  ansible.builtin.command: docker info
+  register: docker_health
+  changed_when: false
+  failed_when: docker_health.rc != 0

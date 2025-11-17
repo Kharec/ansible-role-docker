@@ -1,0 +1,57 @@
+---
+- name: Add users to docker group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users }}"
+  when: docker_users | length > 0
+
+- name: Create /etc/docker directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: "0755"
+
+- name: Enable and start Docker
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Create docker data directory
+  ansible.builtin.file:
+    path: "{{ docker_data_dir }}"
+    state: directory
+    mode: "0755"
+    group: docker
+  when: docker_data_dir is defined and docker_data_dir | length > 0
+
+- name: Create systemd override directory for Docker
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: "0755"
+  when: docker_expose_api
+
+- name: Deploy Docker systemd override for API exposure
+  ansible.builtin.template:
+    src: docker-override.conf.j2
+    dest: /etc/systemd/system/docker.service.d/override.conf
+    mode: "0644"
+  notify: restart docker
+  when: docker_expose_api
+
+- name: Remove Docker systemd override when API exposure is disabled
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d/override.conf
+    state: absent
+  notify: restart docker
+  when: not docker_expose_api
+
+- name: Deploy Docker daemon.json configuration file
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  notify: restart docker

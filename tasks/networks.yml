@@ -1,0 +1,51 @@
+---
+- name: Get all Docker networks
+  ansible.builtin.command: docker network ls --format "{{ '{{' }}.Name{{ '}}' }}"
+  register: all_networks
+  changed_when: false
+  when: docker_networks is defined
+
+- name: Get list of managed network names
+  ansible.builtin.set_fact:
+    managed_network_names: "{{ docker_networks | map(attribute='name') | list }}"
+  when: docker_networks is defined
+
+- name: Check networks to remove
+  ansible.builtin.set_fact:
+    networks_to_remove: "{{ all_networks.stdout_lines | difference(managed_network_names | default([])) | difference(['bridge', 'host', 'none']) | list }}"
+  when: docker_networks is defined
+
+- name: Remove Docker networks no longer in configuration
+  ansible.builtin.command: docker network rm {{ item }}
+  loop: "{{ networks_to_remove | default([]) }}"
+  loop_control:
+    label: "{{ item }}"
+  when:
+    - docker_networks is defined
+    - networks_to_remove | default([]) | length > 0
+  ignore_errors: true
+  failed_when: false
+
+- name: Check if Docker network exists
+  ansible.builtin.command: docker network inspect {{ item.name }}
+  register: network_check
+  changed_when: false
+  failed_when: false
+  loop: "{{ docker_networks }}"
+  when: docker_networks | length > 0
+
+- name: Create Docker networks
+  ansible.builtin.command: >
+    docker network create
+    --driver {{ item.driver | default('bridge') }}
+    {% if item.subnet is defined %}--subnet {{ item.subnet }}{% endif %}
+    {% if item.gateway is defined %}--gateway {{ item.gateway }}{% endif %}
+    {% if item.ip_range is defined %}--ip-range {{ item.ip_range }}{% endif %}
+    {{ item.name }}
+  loop: "{{ docker_networks }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - docker_networks | length > 0
+    - network_check.results | selectattr('item.name', 'equalto', item.name) | selectattr('rc', 'equalto', 1) | list | length > 0
+  ignore_errors: true

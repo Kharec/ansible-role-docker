@@ -1,0 +1,17 @@
+---
+- name: Running installation
+  ansible.builtin.include_tasks: installation.yml
+
+- name: Configure Docker
+  ansible.builtin.include_tasks: configuration.yml
+
+- name: Verify Docker installation
+  ansible.builtin.include_tasks: healthcheck.yml
+
+- name: Create Docker networks
+  ansible.builtin.include_tasks: networks.yml
+  when: docker_networks is defined
+
+- name: Configure Docker registry authentication
+  ansible.builtin.include_tasks: registry.yml
+  when: docker_registry_url is defined
