@@ -1,0 +1,4 @@
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://{{ docker_api_host }}:{{ docker_api_port }} --containerd=/run/containerd/containerd.sock
+

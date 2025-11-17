@@ -1,0 +1,11 @@
+{
+{% if docker_data_dir is defined and docker_data_dir | length > 0 %}
+  "data-root": "{{ docker_data_dir }}",
+{% endif %}
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+
